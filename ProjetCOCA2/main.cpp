@@ -22,26 +22,60 @@ void clearFile()
     myfile.open(filename, ios::trunc);
     myfile.close();
 }
+//void cnf_neighboursOneAndTwo()
+//{
+//    buffer +="c Start cnf_neighboursOneAndTwo\n";
+//    for(int i = 0; i < orderG(); i++)
+//    {
+//        for(int j = 0; j < orderG(); j++)
+//        {
+//            if(i != j && are_adjacent(i,j))
+//            {
+//                buffer += "-" + to_string(i+1) + " " + to_string(j+1) + " 0\n";
+//                buffer += to_string(i+1) + " -" + to_string(j+1) + " 0\n";
+//                buffer += "-" + to_string(j+1) + " " + to_string(i+1) + " 0\n";
+//                buffer += to_string(j+1) + " -" + to_string(i+1) + " 0\n";
+//                nbClauses+=4;
+//            }
+//        }
+//    }
+//}
 
-// Chaque sommet a premier premier voisin et un deuxième voisin
+// Chaque sommet a un premier voisin et un deuxième voisin
 void cnf_neighboursOneAndTwo()
 {
     buffer +="c Start cnf_neighboursOneAndTwo\n";
     for(int i = 0; i < orderG(); i++)
     {
+        buffer += to_string(i+1) + " 0\n";
+        nbClauses++;
         for(int j = 0; j < orderG(); j++)
         {
-            if(i != j)
-            {
-                buffer += "-" + to_string(i+1) + " " + to_string(j+1) + " 0\n";
-                buffer += to_string(i+1) + " -" + to_string(j+1) + " 0\n";
-                buffer += "-" + to_string(j+1) + " " + to_string(i+1) + " 0\n";
-                buffer += to_string(j+1) + " -" + to_string(i+1) + " 0\n";
-                nbClauses+=4;
-            }
+           if(i!=j)
+           {
+               buffer += to_string(j+1) + " ";
+           }
         }
-    }
+        buffer += "0\n";
+        nbClauses++;
 
+        for(int j = 0; j < orderG(); j++)
+        {
+           if(i!=j)
+           {
+                buffer += "-" + to_string(j+1) + " ";
+               for(int k = 0; k < orderG(); k++)
+               {
+                   if(k != j && k != i)
+                        buffer +=to_string(k+1) + " ";
+               }
+               buffer += "0\n";
+               nbClauses++;
+           }
+        }
+
+
+    }
 }
 // Premier voisin different du deuxième voisin
 void cnf_differentNeighbours()
@@ -51,7 +85,7 @@ void cnf_differentNeighbours()
     {
         for(int j = 0; j < orderG(); j++)
         {
-            if( i != j)
+            if(i != j && are_adjacent(i, j))
             {
                 buffer += "-" + to_string(i+1) + " -" + to_string(j+1) + " 0\n";
                 nbClauses++;
@@ -68,9 +102,9 @@ void cnf_allInTriangle()
     {
         for(int j = 0; j < orderG(); j++)
         {
-            if(i != j)
+            if(i != j && are_adjacent(i, j))
             {
-                buffer += "-" +to_string(i+1) + " " + to_string(j+1) + " ";
+                buffer += to_string(i+1) + " " + to_string(j+1) + " ";
             }
         }
         buffer +="0\n";
@@ -82,8 +116,8 @@ int main(int argc, char *argv[])
 {
     clearFile();
     cnf_neighboursOneAndTwo();
-    cnf_differentNeighbours();
-    cnf_allInTriangle();
+//    cnf_differentNeighbours();
+//    cnf_allInTriangle();
     addToFile("p cnf " + to_string(orderG()) + " " + to_string(nbClauses) + "\n" + buffer);
 }
 
