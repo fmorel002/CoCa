@@ -1,47 +1,72 @@
 #include <iostream>
-#include "graphtriangle.c"
 #include <fstream>
 #include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include "graphtriangle.c"
+
 
 using namespace std;
 const string filename = "graphToSat.txt";
+const char * graphFile = "graph.dot";
+const char * generateGraphFileName = "graph.png";
 string buffer;
 int nbClauses;
 
 void addToFile(string data)
 {
     ofstream myfile;
-    myfile.open(filename, ios::app);
+    myfile.open(filename, ios::trunc);
     myfile << data;
     myfile.close();
 }
 
-void clearFile()
+void genereateGraph()
 {
     ofstream myfile;
-    myfile.open(filename, ios::trunc);
+    myfile.open(graphFile, ios::trunc);
+    string data ="graph {\n";
+
+    for(int i=0; i < orderG(); i++)
+    {
+        for(int j=i; j < orderG(); j++)
+        {
+            if(are_adjacent(i,j))
+                data+= to_string(i) + " -- " + to_string(j) + ";\n";
+        }
+    }
+
+    data+= "}";
+    myfile << data;
     myfile.close();
+
+
+    /*int child_status;
+
+    child_pid = fork();
+    if(child_pid == 0) {
+
+    char *argv[5];
+    argv[0] = "-Tpng";
+    argv[1] = "graph.dot";
+    argv[2] = "-o";
+    argv[3] = "graph.png";
+    argv[4] = NULL;
+        execvp("dot", argv);
+        printf("Unknown command\n");
+        exit(0);
+    }
+    else {
+       wait(&child_status);
+    }*/
 }
-//void cnf_neighboursOneAndTwo()
-//{
-//    buffer +="c Start cnf_neighboursOneAndTwo\n";
-//    for(int i = 0; i < orderG(); i++)
-//    {
-//        for(int j = 0; j < orderG(); j++)
-//        {
-//            if(i != j && are_adjacent(i,j))
-//            {
-//                buffer += "-" + to_string(i+1) + " " + to_string(j+1) + " 0\n";
-//                buffer += to_string(i+1) + " -" + to_string(j+1) + " 0\n";
-//                buffer += "-" + to_string(j+1) + " " + to_string(i+1) + " 0\n";
-//                buffer += to_string(j+1) + " -" + to_string(i+1) + " 0\n";
-//                nbClauses+=4;
-//            }
-//        }
-//    }
-//}
 
 // Chaque sommet a un premier voisin et un deuxième voisin
+// FONCTIONNELLE
 void cnf_neighboursOneAndTwo()
 {
     buffer +="c Start cnf_neighboursOneAndTwo\n";
@@ -51,7 +76,7 @@ void cnf_neighboursOneAndTwo()
         nbClauses++;
         for(int j = 0; j < orderG(); j++)
         {
-           if(i!=j)
+           if(i!=j && are_adjacent(i,j))
            {
                buffer += to_string(j+1) + " ";
            }
@@ -66,17 +91,16 @@ void cnf_neighboursOneAndTwo()
                 buffer += "-" + to_string(j+1) + " ";
                for(int k = 0; k < orderG(); k++)
                {
-                   if(k != j && k != i)
+                   if(k != j && k != i && are_adjacent(i,k))
                         buffer +=to_string(k+1) + " ";
                }
                buffer += "0\n";
                nbClauses++;
            }
         }
-
-
     }
 }
+
 // Premier voisin different du deuxième voisin
 void cnf_differentNeighbours()
 {
@@ -114,10 +138,10 @@ void cnf_allInTriangle()
 
 int main(int argc, char *argv[])
 {
-    clearFile();
+    genereateGraph();
     cnf_neighboursOneAndTwo();
-//    cnf_differentNeighbours();
-//    cnf_allInTriangle();
+    //    cnf_differentNeighbours();
+    //    cnf_allInTriangle();
     addToFile("p cnf " + to_string(orderG()) + " " + to_string(nbClauses) + "\n" + buffer);
 }
 
