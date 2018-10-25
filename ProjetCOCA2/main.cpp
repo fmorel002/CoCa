@@ -65,6 +65,15 @@ void genereateGraph()
     }*/
 }
 
+void generateColoredGraph(string data)
+{
+    ofstream myfile;
+    myfile.open(graphFile, ios::trunc);
+    data ="graph {\n" + data + "}";
+    myfile << data;
+    myfile.close();
+}
+
 // Chaque sommet a un premier voisin et un deuxième voisin
 // FONCTIONNELLE
 void cnf_neighboursOneAndTwo()
@@ -76,32 +85,34 @@ void cnf_neighboursOneAndTwo()
         nbClauses++;
         for(int j = 0; j < orderG(); j++)
         {
-           if(i!=j && are_adjacent(i,j))
-           {
-               buffer += to_string(j+1) + " ";
-           }
+            if(i!=j && are_adjacent(i,j))
+            {
+                buffer += to_string(j+1) + " ";
+            }
         }
         buffer += "0\n";
         nbClauses++;
 
         for(int j = 0; j < orderG(); j++)
         {
-           if(i!=j)
-           {
+            if(i!=j)
+            {
                 buffer += "-" + to_string(j+1) + " ";
-               for(int k = 0; k < orderG(); k++)
-               {
-                   if(k != j && k != i && are_adjacent(i,k))
+                for(int k = 0; k < orderG(); k++)
+                {
+                    if(k != j && k != i && are_adjacent(i,k))
                         buffer +=to_string(k+1) + " ";
-               }
-               buffer += "0\n";
-               nbClauses++;
-           }
+                }
+                buffer += "0\n";
+                nbClauses++;
+            }
         }
     }
 }
 
 // Premier voisin different du deuxième voisin
+// VRAISEMBLABLEMENT INUTILE
+// CAR VERIFIER PAR CNF PRECEDENTE (A VERIFIER)
 void cnf_differentNeighbours()
 {
     buffer +="c Start cnf_differentNeighbours\n";
@@ -118,21 +129,56 @@ void cnf_differentNeighbours()
     }
 }
 
+
+//void cnf_allInTriangle()
+//{
+//    buffer +="c Start cnf_allInTriangle\n";
+//    for(int i = 0; i < orderG(); i++)
+//    {
+//        for(int j = 0; j < orderG(); j++)
+//        {
+//            if(i != j && are_adjacent(i, j))
+//            {
+//                buffer += to_string(i+1) + " " + to_string(j+1) + " ";
+//            }
+//        }
+//        buffer +="0\n";
+//        nbClauses++;
+//    }
+//}
+
 // Tous les sommets sont dans un triangle
+// SEMI-FONCTIONNEL
 void cnf_allInTriangle()
 {
-    buffer +="c Start cnf_allInTriangle\n";
     for(int i = 0; i < orderG(); i++)
     {
+        buffer += to_string(i+1) + " 0\n";
+        nbClauses++;
         for(int j = 0; j < orderG(); j++)
         {
             if(i != j && are_adjacent(i, j))
             {
-                buffer += to_string(i+1) + " " + to_string(j+1) + " ";
+                buffer += to_string(j+1) + " 0\n";
+                nbClauses++;
+                for(int k = 0; k < orderG(); k++)
+                {
+                    if(k != i && k!= j)
+                    {
+                        if(are_adjacent(i,k) && are_adjacent(j,k))
+                        {
+                            buffer += "-" +to_string(i+1) + " -" + to_string(j+1) + " " + to_string(k+1) + " 0\n";
+                            nbClauses++;
+                        }
+                        else
+                        {
+                            buffer += "-" + to_string(i+1) + " -" + to_string(j+1) + " -" + to_string(k+1) + " 0\n";
+                            nbClauses+=1;
+                        }
+                    }
+                }
             }
         }
-        buffer +="0\n";
-        nbClauses++;
     }
 }
 
@@ -141,7 +187,7 @@ int main(int argc, char *argv[])
     genereateGraph();
     cnf_neighboursOneAndTwo();
     //    cnf_differentNeighbours();
-    //    cnf_allInTriangle();
+    cnf_allInTriangle();
     addToFile("p cnf " + to_string(orderG()) + " " + to_string(nbClauses) + "\n" + buffer);
 }
 
