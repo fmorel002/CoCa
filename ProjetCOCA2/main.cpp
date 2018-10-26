@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "graphtriangle.c"
+#include <vector>
 
 
 using namespace std;
@@ -16,6 +17,17 @@ const char * graphFile = "graph.dot";
 const char * generateGraphFileName = "graph.png";
 string buffer;
 int nbClauses;
+
+bool tabContain(std::vector<int> tab , int elem)
+{
+    for(int i = 0 ; i < tab.size();i++)
+    {
+        if(tab[i] == elem)
+            return true;
+    }
+    return false;
+}
+
 
 void addToFile(string data)
 {
@@ -43,26 +55,6 @@ void genereateGraph()
     data+= "}";
     myfile << data;
     myfile.close();
-
-
-    /*int child_status;
-
-    child_pid = fork();
-    if(child_pid == 0) {
-
-    char *argv[5];
-    argv[0] = "-Tpng";
-    argv[1] = "graph.dot";
-    argv[2] = "-o";
-    argv[3] = "graph.png";
-    argv[4] = NULL;
-        execvp("dot", argv);
-        printf("Unknown command\n");
-        exit(0);
-    }
-    else {
-       wait(&child_status);
-    }*/
 }
 
 void generateColoredGraph(string data)
@@ -130,59 +122,36 @@ void cnf_differentNeighbours()
 }
 
 
-//void cnf_allInTriangle()
-//{
-//    buffer +="c Start cnf_allInTriangle\n";
-//    for(int i = 0; i < orderG(); i++)
-//    {
-//        for(int j = 0; j < orderG(); j++)
-//        {
-//            if(i != j && are_adjacent(i, j))
-//            {
-//                buffer += to_string(i+1) + " " + to_string(j+1) + " ";
-//            }
-//        }
-//        buffer +="0\n";
-//        nbClauses++;
-//    }
-//}
-
 // Tous les sommets sont dans un triangle
 // SEMI-FONCTIONNEL
 void cnf_allInTriangle()
 {
     for(int i = 0; i < orderG(); i++)
     {
-        buffer += to_string(i+1) + " 0\n";
-        nbClauses++;
         for(int j = 0; j < orderG(); j++)
         {
-            if(i != j && are_adjacent(i, j))
+            if(i!= j && are_adjacent(i,j))
             {
-                buffer += to_string(j+1) + " 0\n";
-                nbClauses++;
                 for(int k = 0; k < orderG(); k++)
                 {
-                    if(k != i && k!= j)
+                    if(k != j && k != i && are_adjacent(i, k) && are_adjacent(j,k))
                     {
-                        if(are_adjacent(i,k) && are_adjacent(j,k))
-                        {
-                            buffer += "-" +to_string(i+1) + " -" + to_string(j+1) + " " + to_string(k+1) + " 0\n";
-                            nbClauses++;
-                        }
-                        else
-                        {
-                            buffer += "-" + to_string(i+1) + " -" + to_string(j+1) + " -" + to_string(k+1) + " 0\n";
-                            nbClauses+=1;
-                        }
+                        buffer += to_string(i+1) + " " + to_string(j+1) + " " + to_string(k+1) + " 0\n";
+                        nbClauses++;
+                    }
+                    else
+                    {
+                        buffer += to_string(i+1) + to_string(j+1) + " -" + to_string(k+1) + " 0\n";
+                        nbClauses++;
                     }
                 }
             }
+
         }
     }
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     genereateGraph();
     cnf_neighboursOneAndTwo();
@@ -192,4 +161,6 @@ int main(int argc, char *argv[])
 }
 
 
-// pensez a regarder les arrêtes parceque les sommets c'est cool mais les triangles c'est pas que des points :)
+
+
+    // pensez a regarder les arrêtes parceque les sommets c'est cool mais les triangles c'est pas que des points :)
