@@ -3,8 +3,6 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 
 #include "graphtriangle.c"
@@ -87,13 +85,13 @@ void cnf_neighboursOneAndTwo()
 
         for(int j = 0; j < orderG(); j++)
         {
-            if(i!=j)
+            if(i != j)
             {
                 buffer += "-" + to_string(j+1) + " ";
                 for(int k = 0; k < orderG(); k++)
                 {
                     if(k != j && k != i && are_adjacent(i,k))
-                        buffer +=to_string(k+1) + " ";
+                        buffer += to_string(k+1) + " ";
                 }
                 buffer += "0\n";
                 nbClauses++;
@@ -124,25 +122,58 @@ void cnf_differentNeighbours()
 
 // Tous les sommets sont dans un triangle
 // SEMI-FONCTIONNEL
+//Répond juste sur Chvatal (12sommets), n'a pas de triangles.
+//void cnf_allInTriangle()
+//{
+//    for(int i = 0; i < orderG(); i++)
+//    {
+//        for(int j = 0; j < orderG(); j++)
+//        {
+//            if(i!= j && are_adjacent(i,j))
+//            {
+//                for(int k = 0; k < orderG(); k++)
+//                {
+//                    if(k != j && k != i && are_adjacent(i, k) && are_adjacent(j,k))
+//                    {
+//                        buffer += to_string(i+1) + " " + to_string(j+1) + " " + to_string(k+1) + " 0\n";
+//                        nbClauses++;
+//                    }
+//                    else
+//                    {
+//                        buffer += to_string(i+1) + to_string(j+1) + " -" + to_string(k+1) + " 0\n";
+//                        nbClauses++;
+//                    }
+//                }
+//            }
+
+//        }
+//    }
+//}
+
+//TEST
 void cnf_allInTriangle()
 {
+    buffer += "c AllInTriangle \n";
     for(int i = 0; i < orderG(); i++)
     {
         for(int j = 0; j < orderG(); j++)
         {
-            if(i!= j && are_adjacent(i,j))
+            if(i != j && are_adjacent(i,j))
             {
                 for(int k = 0; k < orderG(); k++)
                 {
                     if(k != j && k != i && are_adjacent(i, k) && are_adjacent(j,k))
                     {
                         buffer += to_string(i+1) + " " + to_string(j+1) + " " + to_string(k+1) + " 0\n";
+                        k = orderG();
+                        j = orderG();
                         nbClauses++;
                     }
-                    else
+                    else if (k != j && k != i)
                     {
-                        buffer += to_string(i+1) + to_string(j+1) + " -" + to_string(k+1) + " 0\n";
-                        nbClauses++;
+                        buffer += to_string(i+1) + " " + to_string(j+1) + " 0\n";
+                        buffer += "-" + to_string(i+1) + " -" + to_string(j+1) + " -" + to_string(k+1) + " 0\n";
+                        nbClauses += 2;
                     }
                 }
             }
@@ -154,13 +185,8 @@ void cnf_allInTriangle()
 int main()
 {
     genereateGraph();
-    cnf_neighboursOneAndTwo();
+   // cnf_neighboursOneAndTwo();
     //    cnf_differentNeighbours();
     cnf_allInTriangle();
     addToFile("p cnf " + to_string(orderG()) + " " + to_string(nbClauses) + "\n" + buffer);
 }
-
-
-
-
-    // pensez a regarder les arrêtes parceque les sommets c'est cool mais les triangles c'est pas que des points :)
