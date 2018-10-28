@@ -15,17 +15,7 @@ const char * graphFile = "graph.dot";
 const char * generateGraphFileName = "graph.png";
 string buffer;
 int nbClauses;
-
-bool tabContain(std::vector<int> tab , int elem)
-{
-    for(int i = 0 ; i < tab.size();i++)
-    {
-        if(tab[i] == elem)
-            return true;
-    }
-    return false;
-}
-
+int edgeToColor[numbSommet][2];
 
 void addToFile(string data)
 {
@@ -35,31 +25,49 @@ void addToFile(string data)
     myfile.close();
 }
 
-void genereateGraph()
+void generateGraph()
 {
     ofstream myfile;
     myfile.open(graphFile, ios::trunc);
     string data ="graph {\n";
 
-    for(int i=0; i < orderG(); i++)
+    for(int i = 0; i < orderG(); i++)
     {
-        for(int j=i; j < orderG(); j++)
+        for(int j = i; j < orderG(); j++)
         {
-            if(are_adjacent(i,j))
-                data+= to_string(i) + " -- " + to_string(j) + ";\n";
+            if(are_adjacent(i, j))
+                data += to_string(i) + " -- " + to_string(j) + ";\n";
         }
     }
 
-    data+= "}";
+    data += "}";
     myfile << data;
     myfile.close();
 }
 
-void generateColoredGraph(string data)
+void generateColoredGraph()
 {
     ofstream myfile;
     myfile.open(graphFile, ios::trunc);
-    data ="graph {\n" + data + "}";
+    string data ="graph {\n";
+    string colorRed = "red";
+    string colorString = "[color=" + colorRed + "]";
+
+    for(int i = 0; i < orderG(); i++)
+    {
+        for(int j = i; j < orderG(); j++)
+        {
+            if(are_adjacent(i, j) && edgeToColor[i][0] == i && edgeToColor[i][1] == j){
+                data += to_string(i) + " -- " + to_string(j) + " " + colorString + ";\n";
+            }
+            else if(are_adjacent(i, j))
+            {
+                data += to_string(i) + " -- " + to_string(j) + ";\n";
+            }
+        }
+    }
+
+    data += "}";
     myfile << data;
     myfile.close();
 }
@@ -164,15 +172,24 @@ void cnf_allInTriangle()
                 {
                     if(k != j && k != i && are_adjacent(i, k) && are_adjacent(j,k))
                     {
-                        buffer += to_string(i+1) + " " + to_string(j+1) + " " + to_string(k+1) + " 0\n";
+                        buffer += to_string(orderG() + i+1) + " " + to_string(orderG() + j+1) + " " + to_string(orderG() + k+1) + " 0\n";
+
+                        edgeToColor[i][0] = i;
+                        edgeToColor[i][1] = j;
+                        edgeToColor[j][0] = j;
+                        edgeToColor[j][1] = k;
+                        edgeToColor[k][0] = k;
+                        edgeToColor[k][1] = i;
+
                         k = orderG();
                         j = orderG();
+
                         nbClauses++;
                     }
                     else if (k != j && k != i)
                     {
-                        buffer += to_string(i+1) + " " + to_string(j+1) + " 0\n";
-                        buffer += "-" + to_string(i+1) + " -" + to_string(j+1) + " -" + to_string(k+1) + " 0\n";
+                        buffer += to_string(orderG() + i+1) + " " + to_string(orderG() + j+1) + " 0\n";
+                        buffer += "-" + to_string(orderG() + i+1) + " -" + to_string(orderG() + j+1) + " -" + to_string(orderG() + k+1) + " 0\n";
                         nbClauses += 2;
                     }
                 }
@@ -184,9 +201,9 @@ void cnf_allInTriangle()
 
 int main()
 {
-    genereateGraph();
-   // cnf_neighboursOneAndTwo();
+    cnf_neighboursOneAndTwo();
     //    cnf_differentNeighbours();
     cnf_allInTriangle();
     addToFile("p cnf " + to_string(orderG()) + " " + to_string(nbClauses) + "\n" + buffer);
+    generateGraph();
 }
