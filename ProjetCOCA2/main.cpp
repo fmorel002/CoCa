@@ -57,7 +57,7 @@ void generateColoredGraph()
     {
         for(int j = i; j < orderG(); j++)
         {
-            if(are_adjacent(i, j) && edgeToColor[i][0] == i && edgeToColor[i][1] == j){
+            if(are_adjacent(i, j) && (edgeToColor[i][0] == j || edgeToColor[i][1] == j)){
                 data += to_string(i) + " -- " + to_string(j) + " " + colorString + ";\n";
             }
             else if(are_adjacent(i, j))
@@ -173,18 +173,15 @@ void cnf_allInTriangle()
                     if(k != j && k != i && are_adjacent(i, k) && are_adjacent(j,k))
                     {
                         buffer += to_string(orderG() + i+1) + " " + to_string(orderG() + j+1) + " " + to_string(orderG() + k+1) + " 0\n";
+                        nbClauses++;
 
-                        edgeToColor[i][0] = i;
-                        edgeToColor[i][1] = j;
-                        edgeToColor[j][0] = j;
+                        edgeToColor[i][0] = j;
+                        edgeToColor[i][1] = k;
+                        edgeToColor[j][0] = i;
                         edgeToColor[j][1] = k;
-                        edgeToColor[k][0] = k;
-                        edgeToColor[k][1] = i;
 
                         k = orderG();
                         j = orderG();
-
-                        nbClauses++;
                     }
                     else if (k != j && k != i)
                     {
@@ -205,5 +202,5 @@ int main()
     //    cnf_differentNeighbours();
     cnf_allInTriangle();
     addToFile("p cnf " + to_string(orderG()) + " " + to_string(nbClauses) + "\n" + buffer);
-    generateGraph();
+    generateColoredGraph();
 }
