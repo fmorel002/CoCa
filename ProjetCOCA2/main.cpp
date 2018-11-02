@@ -161,6 +161,12 @@ void cnf_differentNeighbours()
 //TEST
 void cnf_allInTriangle()
 {
+    if(orderG() % 3 != 0)
+    {
+        buffer += to_string(orderG() +1) + " 0\n";
+        buffer += "-" +to_string(orderG() +1) + " 0\n";
+    }
+
     buffer += "c AllInTriangle \n";
     for(int i = 0; i < orderG(); i++)
     {
@@ -199,8 +205,7 @@ void cnf_allInTriangle()
 int main()
 {
     cnf_neighboursOneAndTwo();
-    //    cnf_differentNeighbours();
     cnf_allInTriangle();
-    addToFile("p cnf " + to_string(orderG()) + " " + to_string(nbClauses) + "\n" + buffer);
+    addToFile("p cnf " + to_string(orderG()*2) + " " + to_string(nbClauses) + "\n" + buffer);
     generateColoredGraph();
 }

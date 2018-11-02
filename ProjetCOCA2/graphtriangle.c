@@ -1,36 +1,36 @@
-const int numbSommet = 9;
+const int numbSommet = 10;
 
-int orderG(){
-    return numbSommet;
-}
+//int orderG(){
+//    return numbSommet;
+//}
 
-int sizeG(){
-    return 48;
-}
+//int sizeG(){
+//    return 48;
+//}
 
-int graph[numbSommet][numbSommet] = {
-    // 0  1  2  3  4  5  6  7  8
-    {0, 1, 1, 1, 0, 0, 0, 0, 0}, //0
-    {1, 0, 1, 0, 0, 0, 0, 0, 0}, //1
-    {1, 1, 0, 0, 0, 1, 1, 0, 0}, //2
-    {1, 0, 0, 0, 1, 1, 0, 0, 0}, //3
-    {0, 0, 0, 1, 0, 1, 0, 0, 0}, //4
-    {0, 0, 1, 1, 1, 0, 0, 0, 0}, // 5
-    {0, 0, 1, 0, 0, 0, 0, 1, 1}, // 6
-    {0, 0, 0, 0, 0, 0, 1, 0, 1}, // 7
-    {0, 0, 0, 0, 0, 0, 1, 1, 0} // 8
-};
+//int graph[numbSommet][numbSommet] = {
+//    // 0  1  2  3  4  5  6  7  8
+//    {0, 1, 1, 1, 0, 0, 0, 0, 0}, //033
+//    {1, 0, 1, 0, 0, 0, 0, 0, 0}, //1
+//    {1, 1, 0, 0, 0, 1, 1, 0, 0}, //2
+//    {1, 0, 0, 0, 1, 1, 0, 0, 0}, //3
+//    {0, 0, 0, 1, 0, 1, 0, 0, 0}, //4
+//    {0, 0, 1, 1, 1, 0, 0, 0, 0}, // 5
+//    {0, 0, 1, 0, 0, 0, 0, 1, 1}, // 6
+//    {0, 0, 0, 0, 0, 0, 1, 0, 1}, // 7
+//    {0, 0, 0, 0, 0, 0, 1, 1, 0} // 8
+//};
 
 
-int are_adjacent(int u, int v){
-    if (0<= u && 0<=v && u<=numbSommet && v<=numbSommet){
-        if(0<= u && 0<=v && u<orderG() && v<orderG()){
-            return graph[u][v];
-        }
-        return 0;
-    }
-    else return (u-v == -1 || u-v==1 || u-v == -numbSommet|| u-v == numbSommet);
-}
+//int are_adjacent(int u, int v){
+//    if (0<= u && 0<=v && u<=numbSommet && v<=numbSommet){
+//        if(0<= u && 0<=v && u<orderG() && v<orderG()){
+//            return graph[u][v];
+//        }
+//        return 0;
+//    }
+//    else return (u-v == -1 || u-v==1 || u-v == -numbSommet|| u-v == numbSommet);
+//}
 
 //int orderG(){
 //    return 30;
@@ -38,7 +38,7 @@ int are_adjacent(int u, int v){
 
 //int sizeG(){
 //    return 15*29;
-//}
+//}33
 
 //int are_adjacent(int u, int v){
 //    if(0<=u && 0<=v && u<orderG() && v<orderG()){
@@ -83,5 +83,56 @@ int are_adjacent(int u, int v){
 //  }
 //  return 0;
 //}
+
+// Graphe de Chavatal
+// X(G) = 4
+// 4-regulier
+
+
+//int orderG(){
+//    return 40;
+//}
+
+//int sizeG(){
+//    return  700;
+//}
+
+//int are_adjacent(int u, int v){
+//    if(0<=u && 0<=v && u<orderG() && v<orderG()){
+//        if (u>v)
+//            return (u-v)%8;
+//        else
+//            return (v-u)%8;
+//    }
+//    return 0;
+//}
+
+int orderG(){
+return 10;}
+
+int sizeG(){
+return 10;}
+
+int are_adjacent(int u, int v){
+ if(0<= u && 0<=v && u<10 && v<10){
+  return (((10+u-v)%10==1)||((10+v-u)%10==1));
+ }
+ else return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
