@@ -1,22 +1,17 @@
-#include <iostream>
 #include <fstream>
-#include <string>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 #include "graphtriangle.c"
-#include <vector>
-
 
 using namespace std;
+
+// Nom du fichier généré par la réduction SAT
 const string filename = "graphToSat.txt";
 const char * graphFile = "graph.dot";
-const char * generateGraphFileName = "graph.png";
+
 string buffer;
 int nbClauses;
 int edgeToColor[numbSommet][2];
 
+// Vide le fichier et le rempli avec 'data'
 void addToFile(string data)
 {
     ofstream myfile;
@@ -25,26 +20,8 @@ void addToFile(string data)
     myfile.close();
 }
 
-void generateGraph()
-{
-    ofstream myfile;
-    myfile.open(graphFile, ios::trunc);
-    string data ="graph {\n";
-
-    for(int i = 0; i < orderG(); i++)
-    {
-        for(int j = i; j < orderG(); j++)
-        {
-            if(are_adjacent(i, j))
-                data += to_string(i) + " -- " + to_string(j) + ";\n";
-        }
-    }
-
-    data += "}";
-    myfile << data;
-    myfile.close();
-}
-
+// Génère un graph au format .dot avec une coloration
+// rouge pour les arrêtes étant partition d'un triangle
 void generateColoredGraph()
 {
     ofstream myfile;
@@ -72,8 +49,8 @@ void generateColoredGraph()
     myfile.close();
 }
 
-// Chaque sommet a un premier voisin et un deuxième voisin
-// FONCTIONNELLE
+// Codage de forumule SAT
+// Chaque sommet a un premier voisin et un deuxième voisin et ils sont différent
 void cnf_neighboursOneAndTwo()
 {
     buffer +="c Start cnf_neighboursOneAndTwo\n";
@@ -108,57 +85,9 @@ void cnf_neighboursOneAndTwo()
     }
 }
 
-// Premier voisin different du deuxième voisin
-// VRAISEMBLABLEMENT INUTILE
-// CAR VERIFIER PAR CNF PRECEDENTE (A VERIFIER)
-void cnf_differentNeighbours()
-{
-    buffer +="c Start cnf_differentNeighbours\n";
-    for(int i = 0; i < orderG(); i++)
-    {
-        for(int j = 0; j < orderG(); j++)
-        {
-            if(i != j && are_adjacent(i, j))
-            {
-                buffer += "-" + to_string(i+1) + " -" + to_string(j+1) + " 0\n";
-                nbClauses++;
-            }
-        }
-    }
-}
-
-
-// Tous les sommets sont dans un triangle
-// SEMI-FONCTIONNEL
-//Répond juste sur Chvatal (12sommets), n'a pas de triangles.
-//void cnf_allInTriangle()
-//{
-//    for(int i = 0; i < orderG(); i++)
-//    {
-//        for(int j = 0; j < orderG(); j++)
-//        {
-//            if(i!= j && are_adjacent(i,j))
-//            {
-//                for(int k = 0; k < orderG(); k++)
-//                {
-//                    if(k != j && k != i && are_adjacent(i, k) && are_adjacent(j,k))
-//                    {
-//                        buffer += to_string(i+1) + " " + to_string(j+1) + " " + to_string(k+1) + " 0\n";
-//                        nbClauses++;
-//                    }
-//                    else
-//                    {
-//                        buffer += to_string(i+1) + to_string(j+1) + " -" + to_string(k+1) + " 0\n";
-//                        nbClauses++;
-//                    }
-//                }
-//            }
-
-//        }
-//    }
-//}
-
-//TEST
+// Codage formule SAT
+// Tous les sommets du graph sont dans un triangle
+// et chaque triangle est distinct
 void cnf_allInTriangle()
 {
     if(orderG() % 3 != 0)
@@ -202,10 +131,18 @@ void cnf_allInTriangle()
     }
 }
 
+
 int main()
 {
+    // On lance la transformation SAT
     cnf_neighboursOneAndTwo();
     cnf_allInTriangle();
+
+    // On généère le fichier en lui passant en paramètre
+    // l'entête DIMACS avec :
+    // orderG() * 2 sommets car on a OrderG() variables par formule
     addToFile("p cnf " + to_string(orderG()*2) + " " + to_string(nbClauses) + "\n" + buffer);
+
+    // Enfin on génère le graph associé
     generateColoredGraph();
 }
